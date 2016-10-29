@@ -27,36 +27,43 @@ data(wine, package="rattle")
 #all_means[i, ] <- type_means
 
 #}
-
+data(wine)
+wine<-wine[-1]
 #Randomly assign 3 epicenters: create empty matrix:
-epicenters <- matrix(, nrow=3, ncol=13)
+epicenters <- matrix(0, nrow=3, ncol=13)
 #Sample from each column to obtain an epicenter coordinate:
+#i is "k" in k-means
+for(i in 1:3) {
+  for(j in 1:13) {
+    col_sample <- sample(wine[,j], 1)
+    epicenters[i,j] <- col_sample
+  }
+}
 
-for(i in 2:14)
-sample(wine[ ,i], 1)
+#consider checking that the sample falls within each column range
 
-
-
-#calculate euclidean norm sqrt( (x-x)^2 + (y-y)^2 ):
+#calculate euclidean dist:
 #for every observation to each of the three clusters: 
 
 #initialize matrix for euclidean norms plus a column for cluster assignment:
-all_norms <- matrix(, nrow=178, ncol=4)
+all_norms <- matrix(, nrow=178, ncol=3)
 
 #for wine 1:178
 for(i in 1:178) {
   #for allmeans 1:3
   for(j in 1:3) {
-  e_dist <- sqrt(sum((wine[i,-1] - all_means[j, ])^2, na.rm=TRUE))
+  e_dist <- dist(rbind(wine[i,], epicenters[i, ]), method = "euclidean")
   #put in 178x3 matrix (rows are obs, cols are e dists per epicenter)
   all_norms[i, j] <- e_dist
   }
+}
+  e_dist
   #take the min of each row; assign that col as the cluster
-  min_dist <- min(all_norms[i])
+  #min_dist <- min(all_norms[i])
   #put the column number of that min value (indicating the cluster)
   #into the fourth col of all_norms, which indicates cluster assignment
 #this doesnt work now:  all_norms[i,4] <-  which.min(min(all_norms[i])
-  print(all_norms)
+ # print(all_norms)
 }
 
 #return each cluster as a separate matrix
