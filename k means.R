@@ -62,10 +62,14 @@ for(i in 1:178) {
   min_dist_index <- which.min(as.vector(all_norms[i,]))
   all_norms[i,4] <- min_dist_index
 }  
-  
+
+#verify that each cluster has at least one point
+
+ length(which(all_norms[,4]==1))
+ length(which(all_norms[,4]==2))
+ length(which(all_norms[,4]==3))
 
 #return each cluster as a separate matrix
 
-#verify that each cluster has one point
 
 
