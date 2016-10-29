@@ -46,7 +46,7 @@ for(i in 1:3) {
 #for every observation to each of the three clusters: 
 
 #initialize matrix for euclidean norms plus a column for cluster assignment:
-all_norms <- matrix(, nrow=178, ncol=3)
+all_norms <- matrix(, nrow=178, ncol=4)
 
 for(i in 1:3) {
   for(j in 1:178) {
@@ -56,13 +56,13 @@ for(i in 1:3) {
   }
 }
   all_norms
-  #take the min of each row; assign that col as the cluster
-  #min_dist <- min(all_norms[i])
-  #put the column number of that min value (indicating the cluster)
-  #into the fourth col of all_norms, which indicates cluster assignment
-#this doesnt work now:  all_norms[i,4] <-  which.min(min(all_norms[i])
- # print(all_norms)
-}
+#take the min of each row; assign that col as the cluster; put it in fourth 
+#col of all_norms
+for(i in 1:178) {
+  min_dist_index <- which.min(as.vector(all_norms[i,]))
+  all_norms[i,4] <- min_dist_index
+}  
+  
 
 #return each cluster as a separate matrix
 
