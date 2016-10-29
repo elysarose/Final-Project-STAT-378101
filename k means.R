@@ -48,16 +48,14 @@ for(i in 1:3) {
 #initialize matrix for euclidean norms plus a column for cluster assignment:
 all_norms <- matrix(, nrow=178, ncol=3)
 
-#for wine 1:178
-for(i in 1:178) {
-  #for allmeans 1:3
-  for(j in 1:3) {
-  e_dist <- dist(rbind(wine[i,], epicenters[i, ]), method = "euclidean")
-  #put in 178x3 matrix (rows are obs, cols are e dists per epicenter)
-  all_norms[i, j] <- e_dist
+for(i in 1:3) {
+  for(j in 1:178) {
+    e_dist <- dist(rbind(wine[j,], epicenters[i,]), method = "euclidean")
+    #put in 178x3 matrix (rows are obs, cols are e dists per epicenter)
+    all_norms[j, i] <- e_dist
   }
 }
-  e_dist
+  all_norms
   #take the min of each row; assign that col as the cluster
   #min_dist <- min(all_norms[i])
   #put the column number of that min value (indicating the cluster)
