@@ -1,20 +1,12 @@
-x <- rbeta(runif(10000) , 6, 4)
-plot(density(x))
-
-####################
 
 library("rattle")
 data(wine, package="rattle")
 
-#tip: use wine[-1] to exclude the "Type" variable
+#Remove column 1 from the analysis
+wine <- wine[-1]
 
-#INSTRUctions: Write a k-means classifier to cluster the wines 
-#into 3 groups.  Use the Euclidean distance measure.
-
-
-#}
-data(wine)
-wine<-wine[-1]
+#####INITIAL PART (1 of 2): Random sampling, and cluster placement based on 
+#the random sampling:
 #Randomly assign 3 epicenters: create empty matrix:
 epicenters <- matrix(0, nrow=3, ncol=13)
 #Sample from each column to obtain an epicenter coordinate:
@@ -36,18 +28,20 @@ for(i in 1:3) {
 #plus a column for cluster assignment at time t+1:
 all_norms <- matrix(, nrow=178, ncol=5)
 
-for(i in 1:3) {
-  for(j in 1:178) {
-    e_dist <- dist(rbind(wine[j,], epicenters[i,]), method = "euclidean")
-    #put in 178x3 matrix (rows are obs, cols are e dists per epicenter)
-    all_norms[j, i] <- e_dist
+populate_all_norms <- function() {
+  for(i in 1:3) {
+    for(j in 1:178) {
+      e_dist <- dist(rbind(wine[j,], epicenters[i,]), method = "euclidean")
+      #put in 178x3 matrix (rows are obs, cols are e dists per epicenter)
+      all_norms[j, i] <- e_dist
+    }
   }
 }
-  all_norms
+
 #take the min of each row; assign that col as the cluster; put it in fourth 
 #col of all_norms
 for(i in 1:178) {
-  min_dist_index <- which.min(as.vector(all_norms[i,]))
+  min_dist_index <- which.min(as.vector(all_norms[i, c(1,2,3)]))
   all_norms[i,4] <- min_dist_index
 }  
 
@@ -58,20 +52,41 @@ if ((length(which(all_norms[,4]==1)) > 0)&
 #Consider removing the print message
     print ("Each cluster has at least one point")
 }
- 
-#return each cluster as a separate matrix?
-  
+
+
+####SECOND PART (2 OF 2) THIS IS WHERE THE LOOP BEGINS AGAIN, UNTIL NO CHANGE
 #Recalculate the epicenters as the means per cluster
-  #for this: (which(all_norms[,4]==1)) obtain the row numbers per 1,2,3
+  #obtain the row numbers per 1,2,3
   #calculate the means per column using the original matrix
   #populate the epicenters matrix
-  #populate all_norms columns 1-3
-  #populate all_norms column 5
-  #check whether cols 4,5 of all_norms are equal
-    #if so, stop
-    #if not, 
-  all_norms[,4] <- all_norms[,5] 
-  #break (all_norms[,4] <- all_norms[,5])
+for(i in 1:3) {
+    column_means_per_cluster <- colMeans(wine[all_norms[,4]==i, ])
+    epicenters[i, ] <- column_means_per_cluster
+}
+    
+#repopulate all_norms columns 1-3 by calling the function again
+populate_all_norms()
 
+#populate all_norms column 5
+#take the min of each row; assign that col as the cluster; put it in fifth 
+#col of all_norms
+for(i in 1:178) {
+  min_dist_index <- which.min(as.vector(all_norms[i, c(1,2,3)]))
+  all_norms[i,5] <- min_dist_index
+}  
 
+#verify that each cluster has at least one point
+if ((length(which(all_norms[,5]==1)) > 0)&
+    (length(which(all_norms[,5]==2)) > 0)&
+    (length(which(all_norms[,5]==3)) > 0) ) {
+  #Consider removing the print message
+  print ("Each cluster has at least one point")
+}
 
+#check whether cols 4,5 of all_norms are equal
+if ((identical(all_norms[,4], all_norms[,5]))==TRUE) {
+  print("K Means where K=3", epicenters)
+    }else{
+  all_norms[,4] <- all_norms[,5]
+  #and go back to the start of part 2 - code this
+  } 
