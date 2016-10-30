@@ -1,9 +1,65 @@
-
 library("rattle")
 data(wine, package="rattle")
 help(kmeans)
 #Remove column 1 from the analysis
 wine <- wine[-1]
+# we will to make this function divided on separate functions
+
+#copmute random centers by randomizing the membership of each observation to different clusters
+
+random.centers<-function(n, k){
+  clusters <- sample(c(1:k), n, replace=TRUE)
+  return(clusters)
+}
+
+#then computing centers as means of clusters
+centers<-function(x,clusters){
+  all_means<-tapply(x[,1],clusters, mean)
+  for (i in 2:ncol(x)){
+    mean_i <-tapply(x[,i], clusters, mean)
+    all_means<-rbind(all_means,mean_i)
+  }
+  centers<-data.frame(t(all_means))
+  names(centers)<-names(x)
+  return(centers)
+}
+
+centers(wine,clusters)
+
+
+#funcion of euclidian norms
+all_norms<-function(x,centers){ 
+  dist<-matrix(nrow=nrow(x), ncol=nrow(centers))
+  for (i in 1:nrow(x)) {
+    for (j in 1:nrow(centers)){
+      dist[i,j]<-sqrt(sum((x[i,]-centers[j,])^2))
+    } 
+  }
+  return(dist)
+}
+
+all_norms(wine, centers(wine,clusters))
+
+#computing closest point to centers and give it name of a cluster
+points_close<-function(euclid_dist){
+  clusters<-data.frame(cbind(c(apply(euclid_dist,1,which.min))))
+ return(clusters) 
+}
+points_close(all_norms(wine, centers(wine,clusters)))
+
+#aggregating all functions
+k_means<-function(x,k,iterations){
+  clusters<-random.centers(nrow(x),k)
+  for (i in 1:iterations){
+    centers_<-centers(x,clusters)
+    dist<-all_norms(x, centers_)
+    clusters<-points_close(dist)
+  }
+  return(clusters)
+  print(centers_)
+}
+
+
 
 #FIRST TRY OF FUNCTION - too long and have mistakes
 k_means<-function(x, clusters, iterations){
@@ -62,15 +118,6 @@ k_means<-function(x, clusters, iterations){
     } 
     
   }
-
-#SECOND TRY ANOTHER FUNCTION
-
-K_means <- function(x, centers, iterations) {
-
-}
-
-
-
 
 #####INITIAL PART (1 of 2): Random sampling, and cluster placement based on 
 #the random sampling:
