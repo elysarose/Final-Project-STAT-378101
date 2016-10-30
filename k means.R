@@ -11,20 +11,6 @@ data(wine, package="rattle")
 #INSTRUctions: Write a k-means classifier to cluster the wines 
 #into 3 groups.  Use the Euclidean distance measure.
 
-#NOTES:
-
-# NOT DOING THIS: create three clusters: 
-#separate by type, take mean of each measurement within type
-
-#all_means <- matrix(, nrow=3, ncol=13)
-
-#for(i in 1:3) {
-  
-#type_subset <- subset(wine, Type == i)
-#type_means <- sapply(type_subset[-1], mean, na.rm=TRUE)
-#this is a 3x13 matrix indicating epicenter (cols are coordinates)
-#per type (rows))
-#all_means[i, ] <- type_means
 
 #}
 data(wine)
@@ -45,8 +31,10 @@ for(i in 1:3) {
 #calculate euclidean dist:
 #for every observation to each of the three clusters: 
 
-#initialize matrix for euclidean norms plus a column for cluster assignment:
-all_norms <- matrix(, nrow=178, ncol=4)
+#initialize matrix for euclidean norms, 
+#plus a column for cluster assignment at time t,
+#plus a column for cluster assignment at time t+1:
+all_norms <- matrix(, nrow=178, ncol=5)
 
 for(i in 1:3) {
   for(j in 1:178) {
@@ -64,12 +52,26 @@ for(i in 1:178) {
 }  
 
 #verify that each cluster has at least one point
-
- length(which(all_norms[,4]==1))
- length(which(all_norms[,4]==2))
- length(which(all_norms[,4]==3))
-
-#return each cluster as a separate matrix
+if ((length(which(all_norms[,4]==1)) > 0)&
+    (length(which(all_norms[,4]==2)) > 0)&
+    (length(which(all_norms[,4]==3)) > 0) ) {
+#Consider removing the print message
+    print ("Each cluster has at least one point")
+}
+ 
+#return each cluster as a separate matrix?
+  
+#Recalculate the epicenters as the means per cluster
+  #for this: (which(all_norms[,4]==1)) obtain the row numbers per 1,2,3
+  #calculate the means per column using the original matrix
+  #populate the epicenters matrix
+  #populate all_norms columns 1-3
+  #populate all_norms column 5
+  #check whether cols 4,5 of all_norms are equal
+    #if so, stop
+    #if not, 
+  all_norms[,4] <- all_norms[,5] 
+  #break (all_norms[,4] <- all_norms[,5])
 
 
 
