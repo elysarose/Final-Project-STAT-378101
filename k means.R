@@ -18,7 +18,7 @@ for(i in 1:3) {
   }
 }
 
-#consider checking that the sample falls within each column range
+#Verified that the sample falls within each column range
 
 #calculate euclidean dist:
 #for every observation to each of the three clusters: 
@@ -28,15 +28,15 @@ for(i in 1:3) {
 #plus a column for cluster assignment at time t+1:
 all_norms <- matrix(, nrow=178, ncol=5)
 
-populate_all_norms <- function() {
-  for(i in 1:3) {
-    for(j in 1:178) {
-      e_dist <- dist(rbind(wine[j,], epicenters[i,]), method = "euclidean")
-      #put in 178x3 matrix (rows are obs, cols are e dists per epicenter)
-      all_norms[j, i] <- e_dist
-    }
+
+for(i in 1:3) {
+  for(j in 1:178) {
+    e_dist <- dist(rbind(wine[j,], epicenters[i,]), method = "euclidean")
+    #put in 178x3 matrix (rows are obs, cols are e dists per epicenter)
+    all_norms[j, i] <- e_dist
   }
 }
+#Verified that this calculation is correct
 
 #take the min of each row; assign that col as the cluster; put it in fourth 
 #col of all_norms
@@ -60,12 +60,20 @@ if ((length(which(all_norms[,4]==1)) > 0)&
   #calculate the means per column using the original matrix
   #populate the epicenters matrix
 for(i in 1:3) {
-    column_means_per_cluster <- colMeans(wine[all_norms[,4]==i, ])
-    epicenters[i, ] <- column_means_per_cluster
+  wines_per_cluster <- wine[all_norms[,4]==i, ]
+  #take the transpose here to orient it correctly:
+  column_means_per_cluster <- t(colMeans(wines_per_cluster))
+  epicenters[i, ] <- column_means_per_cluster
 }
     
 #repopulate all_norms columns 1-3 by calling the function again
-populate_all_norms()
+for(i in 1:3) {
+  for(j in 1:178) {
+    e_dist <- dist(rbind(wine[j,], epicenters[i,]), method = "euclidean")
+    #put in 178x3 matrix (rows are obs, cols are e dists per epicenter)
+    all_norms[j, i] <- e_dist
+  }
+}
 
 #populate all_norms column 5
 #take the min of each row; assign that col as the cluster; put it in fifth 
