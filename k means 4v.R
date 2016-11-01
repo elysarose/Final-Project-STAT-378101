@@ -16,20 +16,23 @@ k_means<-function(x,k){
   return(all_norms) 
 } 
 k_means(wine,3)
-kmeans()
+kmeans(wine,3)
+
+kate<-k_means(wine,3)
 
 
-all_norms
-
+length(which(kate[,4]==1)) 
+length(which(kate[,4]==2))
+length(which(kate[,4]==3))
 
 
 #Remove column 1 from the analysis
-wine <- wine[-1]
+wine <- wine[-1] 
 
 #####INITIAL PART (1 of 2): Random sampling, and cluster placement based on 
 #the random sampling:
 #Randomly assign 3 epicenters: create empty matrix:
-x<-wine
+x<-wine 
 
 
 
