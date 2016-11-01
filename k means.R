@@ -89,7 +89,7 @@ if ((length(which(all_norms[,5]==1)) > 0)&
     (length(which(all_norms[,5]==3)) > 0) ) {
   #KEEP GOING
 } else{
-  #PRINT THE CLUSTER OUTPUT FROM THE PREVIOUS STATE
+  #PRINT THE CLUSTER OUTPUT FROM THE PREVIOUS STATE: all_norms columns 1-4
 }
 
 #check whether cols 4,5 of all_norms are equal
@@ -98,4 +98,10 @@ if ((identical(all_norms[,4], all_norms[,5]))==TRUE) {
     }else{
   all_norms[,4] <- all_norms[,5]
   #and go back to the start of part 2 - code this
-  } 
+    } 
+
+#here's the cluster chart
+library(fpc)
+plotcluster(wine, all_norms[ ,5])
+
+
