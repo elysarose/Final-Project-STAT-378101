@@ -83,22 +83,37 @@ for(i in 1:178) {
   all_norms[i,5] <- min_dist_index
 }  
 
-#verify that each cluster has at least one point
+#If each cluster DOESN'T have at least one point,
 if ((length(which(all_norms[,5]==1)) > 0)&
     (length(which(all_norms[,5]==2)) > 0)&
-    (length(which(all_norms[,5]==3)) > 0) ) {
-  #KEEP GOING
+    (length(which(all_norms[,5]==3)) > 0) = FALSE ) 
+    {
+    #then print the most recent cluster assignments, which SHOULD have at least one pt per cluster
+     print(all_norms[,4])
+    #If this is a weird scenario where the first iteration has less than 3 clusters,
+    #(which really shouldn't happen), indicate this with a printed message:
+      if ((length(which(all_norms[,4]==1)) > 0)&
+         (length(which(all_norms[,4]==2)) > 0)&
+         (length(which(all_norms[,4]==3)) > 0) = FALSE ) 
+      {
+      print("Warning: Less than three clusters")
+      }
+} else {  
+    #check whether cols 4,5 of all_norms are equal:
+    #if they're equal, stop and print the cluster assignments by row
+    if ((identical(all_norms[,4], all_norms[,5]))==TRUE) 
+    {
+    print(all_norms[,4])
+    #if they're NOT equal, move the most recent clusters over and loop again
+    }else{
+      all_norms[,4] <- all_norms[,5]
+    #and go back to the start of part 2 - code this
+  } 
 } else{
-  #PRINT THE CLUSTER OUTPUT FROM THE PREVIOUS STATE: all_norms columns 1-4
+  #PRINT THE CLUSTER OUTPUT FROM THE PREVIOUS STATE: 
+  print(all_norms[,4])
 }
 
-#check whether cols 4,5 of all_norms are equal
-if ((identical(all_norms[,4], all_norms[,5]))==TRUE) {
-  print("K Means where K=3", all_norms)
-    }else{
-  all_norms[,4] <- all_norms[,5]
-  #and go back to the start of part 2 - code this
-    } 
 
 #here's the cluster chart
 library(fpc)
