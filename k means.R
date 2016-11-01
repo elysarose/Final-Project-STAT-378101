@@ -110,7 +110,7 @@ repeat {
         all_norms[,5] <- NA
       } 
   
-}
+} }
 
   
 #here's the cluster chart
