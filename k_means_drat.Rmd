@@ -1,57 +1,18 @@
-
-library("rattle")
+---
+title: "k means draft"
+author: "Ekaterina Mikhailova"
+date: '31 октября 2016 г '
+output: html_document
+---
+```{r}
 data(wine, package="rattle")
-x<-wine
-k<-3
-
-centr
-centr_old
-centr-centr_old
-
-k_means<-function(x,k){   
-  random_centers<-random.centers(x,k)
-  all_norms<-all_norms(x,k)
-  centr<-random_centers
-  centr_old<-matrix(0, nrow=k, ncol=ncol(x))
-  #it will work until centers become equal 
-  while (sum(abs(centr)-abs(centr_old))>0.01){
-    centers<-means(x,k)
-    all_norms<-all_norms(x,k)
-    centr_old<-centr
-    centr<-centers
-  } 
-  return(all_norms) 
-}  
-k_means(wine,3)
-
-
-
-
-
-
-
-
-kate<-k_means(wine,3)
-
-
-length(which(kate[,4]==1)) 
-length(which(kate[,4]==2))
-length(which(kate[,4]==3))
-
-install.packages("fpc")
-library(fpc)
-kate<-k_means(wine,3)
-plotcluster(wine,kate[,4])
-
-help(scale)
-scale_wine <- scale(wine)
-kate<-k_means(scale_wine,3)
 #Remove column 1 from the analysis
 wine <- wine[-1] 
 
 #####INITIAL PART (1 of 2): Random sampling, and cluster placement based on 
 #the random sampling:
 #Randomly assign 3 epicenters: create empty matrix:
+x<-wine 
 
 random.centers<-function(x,k){
 epicenters <- matrix(0, nrow=k, ncol=ncol(x))
@@ -118,20 +79,32 @@ for(i in 1:k) {
 }
   return(epicenters)
 }  
+```
+
+```{r}
+k_means<-function(x,k){   
+  random_centers<-random.centers(x,k)
+  all_norms<-all_norms(x,k)
+  centr<-random_centers
+  centr_old<-matrix(0, nrow=k, ncol=ncol(x))
+  #it will work until centers become equal 
+  while (sum(abs(centr)-abs(centr_old))>0.01){
+    centers<-means(x,k)
+    all_norms<-all_norms(x,k)
+    centr_old<-centr
+    centr<-centers
+  } 
+  return(all_norms) 
+}  
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+library(fpc)
+kate<-k_means(wine,3)
+plotcluster(wine,kate[,4])
+```
+```{r}
+scale_wine <- scale(wine)
+kate<-k_means(scale_wine,3)
+plotcluster(scale_wine,kate[,4])
+```
 
