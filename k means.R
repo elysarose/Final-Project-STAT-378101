@@ -66,7 +66,7 @@ for(i in 1:3) {
   epicenters[i, ] <- column_means_per_cluster
 }
     
-#repopulate all_norms columns 1-3 by calling the function again
+#repopulate all_norms columns 1-3 by running the function again
 for(i in 1:3) {
   for(j in 1:178) {
     e_dist <- dist(rbind(wine[j,], epicenters[i,]), method = "euclidean")
@@ -87,13 +87,14 @@ for(i in 1:178) {
 if ((length(which(all_norms[,5]==1)) > 0)&
     (length(which(all_norms[,5]==2)) > 0)&
     (length(which(all_norms[,5]==3)) > 0) ) {
-  #Consider removing the print message
-  print ("Each cluster has at least one point")
+  #KEEP GOING
+} else{
+  #PRINT THE CLUSTER OUTPUT FROM THE PREVIOUS STATE
 }
 
 #check whether cols 4,5 of all_norms are equal
 if ((identical(all_norms[,4], all_norms[,5]))==TRUE) {
-  print("K Means where K=3", epicenters)
+  print("K Means where K=3", all_norms)
     }else{
   all_norms[,4] <- all_norms[,5]
   #and go back to the start of part 2 - code this
