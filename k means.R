@@ -98,8 +98,13 @@ if ((length(which(all_norms[,5]==1)) > 0)&
       {
       print("Warning: Less than three clusters")
       }
-} else {  
-    #check whether cols 4,5 of all_norms are equal:
+} 
+
+#If each cluster DOES have at least one point (trying to avoid multiple nested for-loops here),
+if ((length(which(all_norms[,5]==1)) > 0)&
+    (length(which(all_norms[,5]==2)) > 0)&
+    (length(which(all_norms[,5]==3)) > 0)) 
+{   #check whether cols 4,5 of all_norms are equal:
     #if they're equal, stop and print the cluster assignments by row
     if ((identical(all_norms[,4], all_norms[,5]))==TRUE) 
     {
@@ -108,12 +113,8 @@ if ((length(which(all_norms[,5]==1)) > 0)&
     }else{
       all_norms[,4] <- all_norms[,5]
     #and go back to the start of part 2 - code this
-  } 
-} else{
-  #PRINT THE CLUSTER OUTPUT FROM THE PREVIOUS STATE: 
-  print(all_norms[,4])
-}
-
+    } 
+} 
 
 #here's the cluster chart
 library(fpc)
