@@ -163,8 +163,11 @@ correct_matches <- length(which(wine[,1]==1 & wine[,15]==3)) +
   length(which(wine[,1]==3 & wine[,15]==1)) +
   length(which(wine[,1]==2 & wine[,15]==2))
 correct_matches/178
+#FOr above: consider writing a for loop to take the max of all matched sets, instead of 
+#visual inspection
 
-At 0.3539326, the accuracy ratio is less than the unscaled. WHY
+#At 0.3539326, the accuracy ratio is less than the unscaled. WHY
 
+#REPEAT BOTH STEPs foR IRIS dATA!!!!!!!!!!
 
-#It looks as though the iteration count here was 6. (count=6)
+#For unscaled, it looks as though the iteration count here was 6. (count=6)
