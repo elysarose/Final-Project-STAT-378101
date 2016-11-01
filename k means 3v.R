@@ -2,6 +2,17 @@
 library("rattle")
 data(wine, package="rattle")
 
+k_means<-function(x,k,iterations){
+  random_centers<-random.centers(x,k)
+  all_norms<-all_norms(x,k)
+  for (i in 1:iterations){
+    centers<-means(x,k)
+    all_norms<-all_norms(x,k)
+  }
+  return(all_norms) 
+}
+k_means(wine,3,3)
+
 #Remove column 1 from the analysis
 wine <- wine[-1]
 
@@ -9,6 +20,7 @@ wine <- wine[-1]
 #the random sampling:
 #Randomly assign 3 epicenters: create empty matrix:
 x<-wine
+
 
 
 random.centers<-function(x,k){
@@ -34,7 +46,7 @@ random.centers(wine,3)
 #plus a column for cluster assignment at time t,
 #plus a column for cluster assignment at time t+1:
 all_norms<-function(x,k){
-all_norms <- matrix(0, nrow=nrow(x), ncol=k+2)
+all_norms <- matrix(0, nrow=nrow(x), ncol=k+1)
 epicenters<-random.centers(x,k)
 for(i in 1:k) {
   for(j in 1:nrow(x)) {
@@ -44,15 +56,12 @@ for(i in 1:k) {
   }
 }
 #Verified that this calculation is correct
-
 #take the min of each row; assign that col as the cluster; put it in fourth 
 #col of all_norms
-
 for(i in 1:nrow(x)) {
   min_dist_index <- which.min(as.vector(all_norms[i, c(1:k)]))
   all_norms[i,k+1] <- min_dist_index
 }  
-
 #verify that each cluster has at least one point
 if ((length(which(all_norms[,4]==1)) > 0)&
     (length(which(all_norms[,4]==2)) > 0)&
@@ -63,19 +72,57 @@ if ((length(which(all_norms[,4]==1)) > 0)&
 return(all_norms)
 } 
 all_norms(wine,3)
+
+
+
+
+
 ####SECOND PART (2 OF 2) THIS IS WHERE THE LOOP BEGINS AGAIN, UNTIL NO CHANGE
 #Recalculate the epicenters as the means per cluster
   #obtain the row numbers per 1,2,3
   #calculate the means per column using the original matrix
   #populate the epicenters matrix
-
-for(i in 1:3) {
-  wines_per_cluster <- wine[all_norms[,4]==i, ]
+means<-function(x,k){
+  all_norms<-all_norms(x,k)
+  epicenters<-random.centers(x,k)
+for(i in 1:k) {
+  x_per_cluster <- x[all_norms[,k+1]==i, ]
   #take the transpose here to orient it correctly:
-  column_means_per_cluster <- t(colMeans(wines_per_cluster))
+  column_means_per_cluster <- t(colMeans(x_per_cluster))
   epicenters[i, ] <- column_means_per_cluster
 }
-    
+  return(epicenters)
+}  
+
+means(wine,3)
+
+
+
+
+k_means<-function(x,k,iterations){
+  random_centers<-random.centers(x,k)
+  all_norms<-all_norms(x,k)
+  for (i in 1:iterations){
+    centers<-means(x,k)
+    all_norms<-all_norms(x,k)
+  }
+ return(all_norms) 
+}
+k_means(wine,3,3)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #repopulate all_norms columns 1-3 by running the function again
 for(i in 1:3) {
   for(j in 1:178) {
