@@ -96,35 +96,16 @@ repeat {
       (length(which(all_norms[,5]==2)) > 0)&
       (length(which(all_norms[,5]==3)) > 0) = FALSE ) 
       {
-      #then print the most recent cluster assignments, which SHOULD have at least one pt per cluster
-       print(all_norms[,4])
-      #If this is a weird scenario where the first iteration has less than 3 clusters,
-      #(which really shouldn't happen), indicate this with a printed message:
-        if ((length(which(all_norms[,4]==1)) > 0)&
-           (length(which(all_norms[,4]==2)) > 0)&
-           (length(which(all_norms[,4]==3)) > 0) = FALSE ) 
-        {
-        print("Warning: Less than three clusters")
-        }
-  } 
+      #then print the t-1 cluster assignments, which SHOULD have at least one pt per cluster
+       print(all_norms[,4]); break
+      } 
 
-  #If each cluster DOES have at least one point (trying to avoid multiple nested for-loops here),
-  if ((length(which(all_norms[,5]==1)) > 0)&
-      (length(which(all_norms[,5]==2)) > 0)&
-      (length(which(all_norms[,5]==3)) > 0)) 
-  {   #check whether cols 4,5 of all_norms are equal:
-      #if they're equal, stop and print the cluster assignments by row
-       if ((identical(all_norms[,4], all_norms[,5]))==TRUE) 
-       {
-       print(all_norms[,4])
-      #if they're NOT equal, move the most recent clusters over and loop again
-      }else{
+    #if cols 4,5 of all_norms are NOT equal, move the most recent clusters over and loop again
+     if ((identical(all_norms[,4], all_norms[,5]))==FALSE) 
+      {
         all_norms[,4] <- all_norms[,5]
         all_norms[,5] <- NA
       } 
-  } 
-    
-  }
   
 }
 
