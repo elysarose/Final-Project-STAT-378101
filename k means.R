@@ -127,52 +127,78 @@ parcoord(wine[,-1], output)
 
 #ANALYSIS
 #Yes, based on the plot the clusters appear well-separated. There is some very slight overlapping
-#of clusters, although that might not be representative of the actual arrangement in 13-space.
+#of clusters.
 
 #How well the algorithm's clusters correspond to the three wine types:
-#Percentage of wines clustered correctly (if each cluster represents a wine type):
-#Plotcluster (wine, wine$Type). Visually inspect: which cluster based on type most closely
-#resembles which current cluster. Ensure that the matching is correct (e.g., type 1 to cluster 2)
-#Calculate an accuracy ratio: COUNT/178 = 
-
-data(wine)
-plotcluster(wine[ , 2:14], wine$Type)
-
-#Visually: cluster1 -> type1, cluster2 -> type3, cluster3 -> type2
+#To obtain percentage of wines clustered correctly (if each cluster represents a wine type):
+#Calculate the sum of: (Type 1 wines matched to type 1 cluster) + (Type 2 wines matched to 
+#type 2 cluster) + (Type 3 wines matched to type 3 cluster). Now, repeat this calculation for the
+#six permutations of the cluster types, since we don't actually know which wine type corresponds
+#to which cluster. Across these 6 sums, take the maximum: this is the number of correct matches.
+#Calculate an accuracy ratio: number of correct matches / total observations = 
 
 data(wine)
 wine$Output <- output
-correct_matches <- length(which(wine[,1]==1 & wine[,15]==1)) +
-                  length(which(wine[,1]==2 & wine[,15]==3)) +
-                  length(which(wine[,1]==3 & wine[,15]==2))
-correct_matches/178
+correct_matches_fxn <- function(x) {
+                  correct_matches <- max(  c(
+  
+                  length(which(x[,1]==1 & x[,15]==1)) +
+                  length(which(x[,1]==2 & x[,15]==2)) +
+                  length(which(x[,1]==3 & x[,15]==3)),
 
-#0.4775281 is the accuracy ratio here. It's not fantastic, but it's better 0.33, the predicted
-#accuracy ratio of pure guessing (is this correct?)
+                  length(which(x[,1]==1 & x[,15]==1)) +
+                  length(which(x[,1]==2 & x[,15]==3)) +
+                  length(which(x[,1]==3 & x[,15]==2)),
+                 
+                  length(which(x[,1]==1 & x[,15]==2)) +
+                  length(which(x[,1]==2 & x[,15]==1)) +
+                  length(which(x[,1]==3 & x[,15]==3)),
+                  
+                  length(which(x[,1]==1 & x[,15]==2)) +
+                  length(which(x[,1]==2 & x[,15]==3)) +
+                  length(which(x[,1]==3 & x[,15]==1)),
+                  
+                  length(which(x[,1]==1 & x[,15]==3)) +
+                  length(which(x[,1]==2 & x[,15]==1)) +
+                  length(which(x[,1]==3 & x[,15]==2)),
+                  
+                  length(which(x[,1]==1 & x[,15]==3)) +
+                  length(which(x[,1]==2 & x[,15]==2)) +
+                  length(which(x[,1]==3 & x[,15]==1))
+                  )  )
+                  return(correct_matches)
+                  }
+correct_matches_fxn(wine)
+accuracy_ratio <- correct_matches/178
+accuracy_ratio
 
-data(wine)
-wine <- scale(wine[-1])
+#70.2% is the accuracy ratio here. It's much higher than 33%, the estimated
+#accuracy ratio of a random set. 
 
 #Describe what this command does, and show how it affects the results of your clustering.
 #scale is a function that centers and/or scales the columns of a numeric matrix.
 #Ran it; count = 7 here. Part of the difference is random.
 
+#Before re-running the code, set wine equal to the scaled matrix: 
+data(wine)
+wine <- scale(wine[-1])
+#Run code. Then run plot:
 plotcluster(wine, output)
 
 #The clusters are completely distinct, unlike the unscaled data.
-#Visually: cluster1 -> type1, cluster2 -> type3, cluster3 -> type2
 
 data(wine)
 wine$Output <- output
-correct_matches <- length(which(wine[,1]==1 & wine[,15]==3)) +
-  length(which(wine[,1]==3 & wine[,15]==1)) +
-  length(which(wine[,1]==2 & wine[,15]==2))
-correct_matches/178
-#FOr above: consider writing a for loop to take the max of all matched sets, instead of 
-#visual inspection
+correct_matches_fxn(wine)
+accuracy_ratio <- correct_matches/178
+accuracy_ratio
 
-#At 0.3539326, the accuracy ratio is less than the unscaled. WHY
+#The accuracy ratio is exactly the same. On the surface this is surprising, given that visually 
+#the scaled clusters are cleaner than the unscaled data. However, the scaling does not represent
+#an algorithmic change, so we should not expect a change in the accuracy ratio. The difference 
+#in plots, as opposed to actual clustering differences, might reflect some very large unscaled 
+#values in the original data, such as Magnesium and Proline, which are magnitudes larger than
+#the other data.
 
 #REPEAT BOTH STEPs foR IRIS dATA!!!!!!!!!!
 
-#For unscaled, it looks as though the iteration count here was 6. (count=6)
