@@ -45,13 +45,14 @@ for(i in 1:178) {
   all_norms[i,4] <- min_dist_index
 }  
 
+#DELETE THIS?
 #verify that each cluster has at least one point
-if ((length(which(all_norms[,4]==1)) > 0)&
-    (length(which(all_norms[,4]==2)) > 0)&
-    (length(which(all_norms[,4]==3)) > 0) ) {
+#if ((length(which(all_norms[,4]==1)) > 0)&
+#    (length(which(all_norms[,4]==2)) > 0)&
+#    (length(which(all_norms[,4]==3)) > 0) ) {
 #Consider removing the print message
-    print ("Each cluster has at least one point")
-}
+#    print ("Each cluster has at least one point")
+#}
 
 ####SECOND PART (2 OF 2) THIS IS WHERE THE LOOP BEGINS, UNTIL NO CHANGE in cluster assignments
 
@@ -59,7 +60,8 @@ if ((length(which(all_norms[,4]==1)) > 0)&
 
 repeat {
   if  (identical(all_norms[,4], all_norms[,5])==TRUE) 
-    {print(all_norms[,4]);
+    {output <- all_norms[,4]
+    print(output);
     break
   }else{
     
@@ -94,10 +96,11 @@ repeat {
   #If each cluster DOESN'T have at least one point,
   if ((length(which(all_norms[,5]==1)) > 0)&
       (length(which(all_norms[,5]==2)) > 0)&
-      (length(which(all_norms[,5]==3)) > 0) = FALSE ) 
+      (length(which(all_norms[,5]==3)) > 0) == FALSE ) 
       {
       #then print the t-1 cluster assignments, which SHOULD have at least one pt per cluster
-       print(all_norms[,4]); break
+      output <- all_norms[,4]
+      print(output); break
       } 
 
     #if cols 4,5 of all_norms are NOT equal, move the most recent clusters over and loop again
@@ -112,4 +115,4 @@ repeat {
   
 #here's the cluster chart
 library(fpc)
-plotcluster(wine, all_norms[ ,5])
+plotcluster(wine, output)
