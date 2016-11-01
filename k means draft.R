@@ -50,7 +50,29 @@ for(i in 1:nrow(x)) {
 }  
 return(all_norms1)
 }
-all_norms1(wine,3)
+
+
+
+all_norms<-function(x, k){
+  all_norms <- matrix(0, nrow=nrow(x), ncol=k+2)
+  epicenters<-random.centers(x,k)
+  for(i in 1:k) {
+    for(j in 1:nrow(x)) {
+      e_dist <- dist(rbind(x[j,], epicenters[i,]), method = "euclidean")
+      #put in 178x3 matrix (rows are obs, cols are e dists per epicenter)
+      all_norms[j, i] <- e_dist
+    }
+  }
+  #Verified that this calculation is correct
+  #take the min of each row; assign that col as the cluster; put it in fourth 
+  #col of all_norms
+  for(i in 1:nrow(x)) {
+    min_dist_index <- which.min(as.vector(all_norms[i, c(1:k)]))
+    all_norms[i,k+1] <- min_dist_index
+  }  
+  return(all_norms)
+}
+
 #DELETE THIS?
 #verify that each cluster has at least one point
 #if ((length(which(all_norms[,4]==1)) > 0)&
@@ -65,25 +87,27 @@ all_norms1(wine,3)
 #Start the repeat loop and test for identical outputs in past 2 iterations
 
 count <- 0
-
 repeat { count <- count + 1
   if  (identical(all_norms[,4], all_norms[,5])==TRUE) 
     {output <- all_norms[,4]
     print(output);
     break
   }else{
-    
 #Recalculate the epicenters as the means per cluster
 #obtain the row numbers per 1,2,3
 #calculate the means per column using the original matrix
 #populate the epicenters matrix
-  for(i in 1:3) {
-    wines_per_cluster <- wine[all_norms[,4]==i, ]
+  epicenters<-function(x,k){
+    all_norms<-all_norms(x,k)
+    for(i in 1:k) {
+    x_per_cluster <- x[all_norms[,k+1]==i, ]
     #take the transpose here to orient it correctly:
-    column_means_per_cluster <- t(colMeans(wines_per_cluster))
+    column_means_per_cluster <- t(colMeans(x_per_cluster))
     epicenters[i, ] <- column_means_per_cluster
+    }
+    return(epicenters)
   }
-    
+    epicenters(wine,3)
   #repopulate all_norms columns 1-3 by running the function again
   for(i in 1:3) {
     for(j in 1:178) {
