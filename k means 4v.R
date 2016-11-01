@@ -7,16 +7,16 @@ k_means<-function(x,k){
   all_norms<-all_norms(x,k)
   centr<-random_centers
   centr_old<-matrix(0, nrow=k, ncol=ncol(x))
-  while ((identical(centr, centr_old))==FALSE){
+  while (abs(centr[i,j]-centr_old[i,j])>0.01){
     centers<-means(x,k)
     all_norms<-all_norms(x,k)
     centr_old<-centr
-    centr<-means
+    centr<-centers
   } 
   return(all_norms) 
 } 
 k_means(wine,3)
-kmeans(wine,3)
+
 
 kate<-k_means(wine,3)
 
@@ -24,6 +24,10 @@ kate<-k_means(wine,3)
 length(which(kate[,4]==1)) 
 length(which(kate[,4]==2))
 length(which(kate[,4]==3))
+
+install.packages("fpc")
+library(fpc)
+plotcluster(wine,kate[,4])
 
 
 #Remove column 1 from the analysis
