@@ -11,6 +11,7 @@ wine <- wine[-1]
 epicenters <- matrix(0, nrow=3, ncol=13)
 #Sample from each column to obtain an epicenter coordinate:
 #i is "k" in k-means
+set.seed(2016)
 for(i in 1:3) {
   for(j in 1:13) {
     col_sample <- sample(wine[,j], 1)
@@ -58,7 +59,9 @@ for(i in 1:178) {
 
 #Start the repeat loop and test for identical outputs in past 2 iterations
 
-repeat {
+count <- 0
+
+repeat { count <- count + 1
   if  (identical(all_norms[,4], all_norms[,5])==TRUE) 
     {output <- all_norms[,4]
     print(output);
@@ -116,3 +119,52 @@ repeat {
 #here's the cluster chart
 library(fpc)
 plotcluster(wine, output)
+
+#ANALYSIS
+#Yes, based on the plot the clusters appear well-separated. There is some very slight overlapping
+#of clusters, although that might not be representative of the actual arrangement in 13-space.
+
+#How well the algorithm's clusters correspond to the three wine types:
+#Percentage of wines clustered correctly (if each cluster represents a wine type):
+#Plotcluster (wine, wine$Type). Visually inspect: which cluster based on type most closely
+#resembles which current cluster. Ensure that the matching is correct (e.g., type 1 to cluster 2)
+#Calculate an accuracy ratio: COUNT/178 = 
+
+data(wine)
+plotcluster(wine[ , 2:14], wine$Type)
+
+#Visually: cluster1 -> type1, cluster2 -> type3, cluster3 -> type2
+
+data(wine)
+wine$Output <- output
+correct_matches <- length(which(wine[,1]==1 & wine[,15]==1)) +
+                  length(which(wine[,1]==2 & wine[,15]==3)) +
+                  length(which(wine[,1]==3 & wine[,15]==2))
+correct_matches/178
+
+#0.4775281 is the accuracy ratio here. It's not fantastic, but it's better 0.33, the predicted
+#accuracy ratio of pure guessing (is this correct?)
+
+data(wine)
+wine <- scale(wine[-1])
+
+#Describe what this command does, and show how it affects the results of your clustering.
+#scale is a function that centers and/or scales the columns of a numeric matrix.
+#Ran it; count = 7 here. Part of the difference is random.
+
+plotcluster(wine, output)
+
+#The clusters are completely distinct, unlike the unscaled data.
+#Visually: cluster1 -> type1, cluster2 -> type3, cluster3 -> type2
+
+data(wine)
+wine$Output <- output
+correct_matches <- length(which(wine[,1]==1 & wine[,15]==3)) +
+  length(which(wine[,1]==3 & wine[,15]==1)) +
+  length(which(wine[,1]==2 & wine[,15]==2))
+correct_matches/178
+
+At 0.3539326, the accuracy ratio is less than the unscaled. WHY
+
+
+#It looks as though the iteration count here was 6. (count=6)
