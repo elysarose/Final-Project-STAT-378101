@@ -43,15 +43,14 @@ for(i in 1:k) {
     all_norms[j, i] <- e_dist
   }
 }
-}
-all_norms()
 #Verified that this calculation is correct
 
 #take the min of each row; assign that col as the cluster; put it in fourth 
 #col of all_norms
-for(i in 1:178) {
-  min_dist_index <- which.min(as.vector(all_norms[i, c(1,2,3)]))
-  all_norms[i,4] <- min_dist_index
+
+for(i in 1:nrow(x)) {
+  min_dist_index <- which.min(as.vector(all_norms[i, c(1:k)]))
+  all_norms[i,k+1] <- min_dist_index
 }  
 
 #verify that each cluster has at least one point
@@ -61,13 +60,15 @@ if ((length(which(all_norms[,4]==1)) > 0)&
 #Consider removing the print message
     print ("Each cluster has at least one point")
 }
-
-
+return(all_norms)
+} 
+all_norms(wine,3)
 ####SECOND PART (2 OF 2) THIS IS WHERE THE LOOP BEGINS AGAIN, UNTIL NO CHANGE
 #Recalculate the epicenters as the means per cluster
   #obtain the row numbers per 1,2,3
   #calculate the means per column using the original matrix
   #populate the epicenters matrix
+
 for(i in 1:3) {
   wines_per_cluster <- wine[all_norms[,4]==i, ]
   #take the transpose here to orient it correctly:
