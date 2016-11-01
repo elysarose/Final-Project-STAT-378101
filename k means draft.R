@@ -98,23 +98,14 @@ K_means<-function(x,k){
     }  
     
     #If each cluster DOESN'T have at least one point,
-    for (m in 1:k) {
-      is_cluster <- c()  
-      is_cluster[m] <- (length(which(all_norms[,k+2]==m)) > 0)
-    }    
-    
-    #sum across the vector:
-    logic_sum <- sum(is_cluster)
-    
-    #If each cluster DOESN'T have at least one point,
-    if (logic_sum != k)
-      
+    for (i in 1:k){
+    if ((length(which(all_norms[,k+2]==i)) > 0) == FALSE ) 
     {
       #then print the t-1 cluster assignments, which SHOULD have at least one pt per cluster
       output <- all_norms[,k+1]
       print(output); break
+    } 
     }
-    
     #if cols 4,5 of all_norms are NOT equal, move the most recent clusters over and loop again
     if ((identical(all_norms[,k+1], all_norms[,k+2]))==FALSE) 
     {
