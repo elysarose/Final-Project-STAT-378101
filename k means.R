@@ -120,6 +120,11 @@ repeat { count <- count + 1
 library(fpc)
 plotcluster(wine, output)
 
+#another chart, per the blog post. This indicates the typical values per column per cluster.
+data(wine)
+library(MASS)
+parcoord(wine[,-1], output)
+
 #ANALYSIS
 #Yes, based on the plot the clusters appear well-separated. There is some very slight overlapping
 #of clusters, although that might not be representative of the actual arrangement in 13-space.
