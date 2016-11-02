@@ -45,6 +45,8 @@ def gibbs(T,thin=10):
         M[i,2] = y
 
 gibbs(T)
+print "The numpy matrix"
+print M
 print "The expectation of X"
 print numpy.mean(M[:,1])
 print "The expectation of Y"
@@ -85,6 +87,8 @@ def gibbs(T,thin=10):
         M[i,2] = y
 
 gibbs(T)
+print "The numpy matrix"
+print M
 print "The expectation of X"
 print numpy.mean(M[:,1])
 print "The expectation of Y"
@@ -125,6 +129,8 @@ def gibbs(T,thin=10):
         M[i,2] = y
 
 gibbs(T)
+print "The numpy matrix"
+print M
 print "The expectation of X"
 print numpy.mean(M[:,1])
 print "The expectation of Y"
