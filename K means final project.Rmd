@@ -1,0 +1,103 @@
+---
+title: "K means final project"
+author: "Elysa Strunin, Ekaterina Mikhailova, Shenrui Pan."
+date: '1 ноября 2016 г '
+output: html_document
+---
+We developed K means algorithm wich includes further steps:
+
+Step 1) Randomly assign center locations for each of k clusters
+
+Step 2) Assign each data point to the cluster whose center is closest to that point
+
+Step 3) Recalculate each cluster center as the mean location of all the points assigned to it.
+
+Check to make sure each cluster has at least one point.
+
+Repeat steps 2-3.
+```{r}
+data(wine, package="rattle")
+#Remove column 1 from the analysis
+wine <- wine[-1]
+
+#Step 1. Randomly assign 3 epicenters
+K_means<-function(x,k){ 
+  epicenters <- matrix(0, nrow=3, ncol=13)
+  #Sample from each column to obtain an epicenter coordinate
+  set.seed(2016)
+  for(i in 1:k) {
+    for(j in 1:ncol(x)) {
+      col_sample <- sample(x[,j], 1)
+      epicenters[i,j] <- col_sample
+    }
+  }
+  
+#Step 2. Calculate euclidian distances, take the min of each row and assign that column as the cluster; put it in fourth column.
+  all_norms <- matrix(0, nrow=nrow(x), ncol=k+2)
+  for(i in 1:k) {
+    for(j in 1:nrow(x)) {
+      e_dist <- dist(rbind(x[j,], epicenters[i,]), method = "euclidean")
+      all_norms[j, i] <- e_dist
+    }
+  }
+  for(i in 1:nrow(x)) {
+    min_dist_index <- which.min(as.vector(all_norms[i, c(1:k)]))
+    all_norms[i,k+1] <- min_dist_index
+  }  
+#Taking count of iterations. If clusters on iteration t-1 and t are equal then break and print the output.
+  count <- 0
+  repeat { count <- count + 1
+  if  (identical(all_norms[,k+1], all_norms[,k+2])==TRUE) 
+  {output <- all_norms[,k+1]
+  print(output);
+  break
+  }else{
+#Step 3. Recalculate the epicenters as the means per cluster
+    for(i in 1:k) {
+      wines_per_cluster <- wine[all_norms[,k+1]==i, ]
+      column_means_per_cluster <- t(colMeans(wines_per_cluster))
+      epicenters[i, ] <- column_means_per_cluster
+    }
+#Repeating Step 2 and 3: calculating euclidian distances
+    for(i in 1:k) {
+      for(j in 1:nrow(x)) {
+        e_dist <- dist(rbind(x[j,], epicenters[i,]), method = "euclidean")
+        all_norms[j, i] <- e_dist
+      }
+    }
+
+#Take the minimum of each row; assign that column as the cluster on itertaion t; put it in k+2 column
+    for(i in 1:nrow(x)) {
+      min_dist_index <- which.min(as.vector(all_norms[i, c(1:k)]))
+      all_norms[i,k+2] <- min_dist_index
+    }  
+    
+#Checking that each cluster has at least one point,if not - break
+    for (i in 1:k){
+    if ((length(which(all_norms[,k+2]==i)) > 0) == FALSE ) 
+    {
+#If one of the clusters has less than one point - print the t-1 cluster assignments, which should have at least one point per cluster
+      output <- all_norms[,k+1]
+      print(output); break
+    } 
+    }
+#If clusters on iteration t+1 (column k+1) and t (column k+2) are not equal, move the most recent clusters over and loop again
+    if ((identical(all_norms[,k+1], all_norms[,k+2]))==FALSE) 
+    {
+      all_norms[,k+1] <- all_norms[,k+2]
+      all_norms[,k+2] <- NA
+    } 
+    
+  }} 
+}
+
+
+
+K_means(wine,3)
+```
+
+We grouped wine data into three clusters. Now we need to visualize our clustering results. 
+```{r}
+plotcluster(wine, output)
+```
+
