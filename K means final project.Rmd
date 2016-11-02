@@ -1,5 +1,5 @@
 ---
-title: "Final Project"
+title: "K Means Final Project"
 author: "Elysa Strunin, Ekaterina Mikhailova, Shenrui Pan"
 output: html_document
 ---
@@ -166,7 +166,7 @@ correct_matches<-correct_matches_fxn(wine)
 accuracy_ratio <- correct_matches/178
 accuracy_ratio
 ```
-The accuracy ratio is about 96% now, which is much better than the unscaled data. This result corroborates the graph; visually the scaled clusters are cleaner than the unscaled clusters. 
+The accuracy ratio is about 96% now, which is much better than the unscaled data. This result corroborates the graph; visually the scaled clusters are cleaner than the unscaled clusters. Scaling the data has reduced the in-cluster variation that was caused more by magnitude than anything else.
 
 
 
