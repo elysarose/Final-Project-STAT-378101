@@ -1,20 +1,17 @@
 ---
-title: "K means final project"
-author: "Elysa Strunin, Ekaterina Mikhailova, Shenrui Pan."
-date: '1 ноября 2016 г '
+title: "Final Project"
+author: "Elysa Strunin, Ekaterina Mikhailova, Shenrui Pan"
 output: html_document
 ---
-We developed K means algorithm wich includes further steps:
+We developed a k-means algorithm which includes the following steps:
 
-Step 1) Randomly assign center locations for each of k clusters
+1. Randomly assign center locations for each of k clusters.
 
-Step 2) Assign each data point to the cluster whose center is closest to that point
+2. Assign each data point to the cluster whose center is closest to that point.
 
-Step 3) Recalculate each cluster center as the mean location of all the points assigned to it.
+3. Recalculate each cluster center as the mean location of all the points assigned to it. Verify that each cluster has at least one point.    
 
-Check to make sure each cluster has at least one point.
-
-Repeat steps 2-3.
+Repeat steps 2-3 until there is no change in cluster assignments from one iteration to the next.
 ```{r}
 data(wine, package="rattle")
 #Preparing data. Remove column 1 from the analysis
@@ -22,7 +19,7 @@ wine <- wine[-1]
 
 #Step 1. Randomly assign 3 epicenters
 K_means<-function(x,k){ 
-  epicenters <- matrix(0, nrow=3, ncol=13)
+  epicenters <- matrix(0, nrow=k, ncol=ncol(x))
   #Sample from each column to obtain an epicenter coordinate
   set.seed(2016)
   for(i in 1:k) {
@@ -32,7 +29,7 @@ K_means<-function(x,k){
     }
   }
   
-#Step 2. Calculate euclidian distances, take the min of each row and assign that column as the cluster; put it in fourth column.
+#Step 2. Calculate euclidean distances, take the min of each row and assign that column as the cluster; put it in fourth column.
   all_norms <- matrix(0, nrow=nrow(x), ncol=k+2)
   for(i in 1:k) {
     for(j in 1:nrow(x)) {
@@ -58,7 +55,7 @@ K_means<-function(x,k){
       column_means_per_cluster <- t(colMeans(wines_per_cluster))
       epicenters[i, ] <- column_means_per_cluster
     }
-#Repeating Step 2 and 3: calculating euclidian distances
+#Repeating Step 2 and 3: calculating euclidean distances
     for(i in 1:k) {
       for(j in 1:nrow(x)) {
         e_dist <- dist(rbind(x[j,], epicenters[i,]), method = "euclidean")
@@ -97,19 +94,18 @@ output<-K_means(wine,3)
 We grouped wine data into three clusters. Now we need to visualize our clustering results. 
 ```{r}
 library(fpc)
-plotcluster(wine, output)
+plotcluster(wine, output, main="Clusters: Unscaled Wine Data")
 ```
 
-We can see from the graph that data wine seems to be well separated. We can clearly observe each cluster. Here is some very slight overlapping of clusters, although that might not be representative of the actual arrangement in 13-space.
+We can see from the plot that the wine data seems to be well separated. We can clearly observe each cluster, although there is some very slight overlapping of clusters.
 
 
-Accuracy ratio. How well the algorithm's clusters correspond to the three wine types:
-In order to obtain percentage of wines clustered correctly (if each cluster represents a wine type):
+Our calculation of an accuracy ratio signals how well the algorithm's clusters correspond to the three wine types. Here we obtain the percentage of wines clustered correctly (if each cluster represents a wine type):
 
 1) Calculate the sum of: (Type 1 wines matched to type 1 cluster) + (Type 2 wines matched to 
 type 2 cluster) + (Type 3 wines matched to type 3 cluster). 
 
-2) Repeat this calculation for the six permutations of the cluster types, since we don't actually know which wine type corresponds to which cluster. (six permutations because in case of 3 clusters we have 3! versions)
+2) Repeat this calculation for the 6 permutations of the cluster types, since we don't actually know which wine type corresponds to which cluster. (Six permutations because in the case of 3 clusters we have 3! versions.)
 
 3) Across these 6 sums, take the maximum: this is the number of correct matches.
 
@@ -149,18 +145,20 @@ correct_matches<-correct_matches_fxn(wine)
 accuracy_ratio <- correct_matches/178
 accuracy_ratio
 ```
-70.2% the accuracy ratio id a really good result. 
+At 70.2%, the accuracy ratio is a very good result. 
 
-Now we will use scaled data in order to compare the efficiency and accuracy of the algorithm K means using it on scaled and non-scaled data. 
+Now we will use scaled data in order to compare the efficiency and accuracy of the K means algorithm on scaled versus unscaled data. scale() is a function that centers and/or scales the columns of a numeric matrix. For example, large values of the unscaled data, such as the Magnesium and Proline values, will be scaled to a magnitude more comparable to the other data points.
+ 
 ```{r}
 data(wine, package="rattle")
 wine_scale <- scale(wine[-1])
 output<-K_means(wine_scale,3)
-plotcluster(wine_scale, output)
+plotcluster(wine_scale, output, main="Clusters: Scaled Wine Data")
 ```
-We can see from the graph that data wine seems to be well separated. We also can clearly observe each cluster as on the non-scaled data. The main difference is that we do not observe any overlapping here, boundaries are really clear now. 
+         
+We can see from the graph that the scaled wine clusters are very well- separated. We can clearly observe each cluster. The main difference from the unscaled data is that we do not observe any overlapping here; boundaries are very clear now. 
 
-Let us to compute the accuracy ratio for scaled data:
+Let us compute the accuracy ratio for scaled data:
 ```{r}
 data(wine, package="rattle")
 wine$Output <- output
@@ -168,7 +166,7 @@ correct_matches<-correct_matches_fxn(wine)
 accuracy_ratio <- correct_matches/178
 accuracy_ratio
 ```
-The accuracy ratio is about 96% now, which is uch better. This result supports graph, visually the scaled clusters are cleaner than the unscaled data. 
+The accuracy ratio is about 96% now, which is much better than the unscaled data. This result corroborates the graph; visually the scaled clusters are cleaner than the unscaled clusters. 
 
 
 
