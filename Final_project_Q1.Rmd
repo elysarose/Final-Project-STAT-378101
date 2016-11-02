@@ -1,0 +1,228 @@
+---
+title: "Final Project"
+author: "Elysa Strunin, Ekaterina Mikhailova, Shenrui Pan"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Metropolis-Hastings
+
+Beta(6,4) is the distribution we need to sample from. The proposal function given is $$\phi_{prop}|\phi_{old}¡«Beta(c*\phi_{old},c*(1 - \phi_{old}))$$ which should be used in the acceptance ratio. We also need to consider the fact that the distribution we are sampling from is not symmetric.
+
+There are four steps for our algorithm.   
+1. Choose a starting value.   
+2.At iteration t, draw a candidate from the proposal function.   
+3.Compute an acceptance ratio r (probability).   
+4.Accept the proposal value as the value in iteration t with probability min(r,1). If the proposal value is not accepted, then the value in iteration t should remain the same as the value in iteration t-1.   
+5.Repeat steps 2-4. 
+
+
+##c=1
+
+###MC algorithm without burn-in
+
+Our code for the part with c=1 is shown as the following.
+```{r}
+set.seed(1)
+#Defination of proposal function
+proposalfunction <- function(c, phi_old){   
+  rbeta(1, c*phi_old,c*(1-phi_old))
+}
+#The constant in proposal function
+c<-1                                        
+# MC algorithm
+run_metropolis_MCMC <- function(c, iterations){   
+  chain = array(dim = c(iterations+1,1))
+  chain[1,] = runif(1)
+  for (i in 1:iterations){
+    proposal = proposalfunction(c,chain[i,])
+    
+    probab = dbeta(proposal,6,4)/dbeta(chain[i,1],6,4)*dbeta(chain[i,],c*proposal,c*(1-proposal))/dbeta(proposal,c*chain[i,],c*(1-chain[i,])) # Acceptance Ratio
+    if (runif(1) < probab){
+      chain[i+1,] = proposal
+    }else{
+      chain[i+1,] = chain[i,]
+    }
+  }
+  return(chain)
+}
+
+chain=run_metropolis_MCMC(1, 10000)
+
+chain_real <- c(10000,1)
+for (i in 1:10000){
+  chain_real[i]<- rbeta(1,6,4) #generation a real chain from beta (6,4)
+}
+
+par(mfrow=c(1,3))  #1 row, 3 columns
+plot(chain,type = 'l');abline(h = mean(chain_real),col = 'red'); acf(chain); hist(chain,freq = FALSE)  #plot commands
+curve(dbeta(x, 6, 4), add=TRUE)  #adding density function of beta(6,4) to histogram
+
+```
+
+As can be seen from the chart above, the histogram does not align well with the density function of beta(6,4) (shown as a line).
+
+###Plot for real distribution (Beta(6,4))
+
+```{r}
+chain_real <- c(10000,1)
+for (i in 1:10000){
+  chain_real[i]<- rbeta(1,6,4) #generation a real chain from beta (6,4)
+}
+
+par(mfrow=c(1,3))  #1 row, 3 columns
+plot(chain_real,type = 'l');abline(h = mean(chain_real),col = 'red'); acf(chain_real); hist(chain_real,freq = FALSE)  #plot commands
+curve(dbeta(x, 6, 4), add=TRUE)  #adding density function of beta(6,4) to histogram
+
+ks.test(chain, chain_real)
+```
+
+The above figure is for the real distribution - namely, the Beta(6,4). The number given is for the Kolmogorov¨CSmirnov test. We can see the two sets of figure do not quite align. The p value we get from the K-S test is quite small, which means that we cannot accept the hypothesis that the two data sets are from the same distribution. 
+
+###MC algorithm with burn-in
+
+Next we use "burn in" and thinning to improve the performance of the algorithm. We modify the code to the following.
+```{r}
+#Definition of proposal function
+proposalfunction <- function(c, phi_old){   
+  rbeta(1, c*phi_old,c*(1-phi_old))
+}
+#The constant in proposal function
+c<-1                                        
+# MC algorithm
+run_metropolis_MCMC <- function(c, iterations){   
+  chain = array(dim = c(iterations+1,1))
+  chain[1,] = runif(1)
+  for (i in 1:iterations){
+    proposal = proposalfunction(c,chain[i,])
+    probab = dbeta(proposal,6,4)/dbeta(chain[i,1],6,4)*dbeta(chain[i,],c*proposal,c*(1-proposal))/dbeta(proposal,c*chain[i,],c*(1-chain[i,])) # Acceptance Ratio, no min here.
+    if (runif(1) < probab){
+      chain[i+1,] = proposal
+    }else{
+      chain[i+1,] = chain[i,]
+    }
+  }
+  return(chain)
+}
+
+
+chain=run_metropolis_MCMC(1, 10000)
+
+burnIn = 1000
+
+par(mfrow=c(1,3))  #1 row, 3 columns
+plot(chain[-(1:burnIn),1],type = 'l');abline(h = mean(chain_real),col = 'red'); acf(chain[-(1:burnIn),1]);hist(chain[-(1:burnIn),1],freq = FALSE)  #plot commands
+curve(dbeta(x, 6, 4), add=TRUE)  #adding density function of beta(6,4) to histogram
+
+
+```
+
+With these modifications implemented, the data more closely follows the probability density function. In order to make a better comparison about the effect of different C's, we will not use burn-in or thining in the following cases.
+
+##c=0.1
+```{r}
+#Defination of proposal function
+proposalfunction <- function(c, phi_old){   
+  rbeta(1, c*phi_old,c*(1-phi_old))
+}
+#The constant in proposal function
+c<-0.1                                        
+# MC algorithm
+run_metropolis_MCMC <- function(c, iterations){   
+  chain = array(dim = c(iterations+1,1))
+  chain[1,] = runif(1)
+  for (i in 1:iterations){
+    proposal = proposalfunction(c,chain[i,])
+    
+    probab = dbeta(proposal,6,4)/dbeta(chain[i,1],6,4)*dbeta(chain[i,],c*proposal,c*(1-proposal))/dbeta(proposal,c*chain[i,],c*(1-chain[i,])) # Acceptance Ratio
+    if (runif(1) < probab){
+      chain[i+1,] = proposal
+    }else{
+      chain[i+1,] = chain[i,]
+    }
+  }
+  return(chain)
+}
+
+chain=run_metropolis_MCMC(1, 10000)
+
+par(mfrow=c(1,3))  #1 row, 3 columns
+plot(chain,type = 'l');abline(h = mean(chain_real),col = 'red'); acf(chain); hist(chain,freq = FALSE)  #plot commands
+curve(dbeta(x, 6, 4), add=TRUE)  #adding density function of beta(6,4) to histogram
+ks.test(chain, chain_real)
+```
+
+##c=2.5
+```{r}
+#Defination of proposal function
+proposalfunction <- function(c, phi_old){   
+  rbeta(1, c*phi_old,c*(1-phi_old))
+}
+#The constant in proposal function
+c<-2.5                                        
+# MC algorithm
+run_metropolis_MCMC <- function(c, iterations){   
+  chain = array(dim = c(iterations+1,1))
+  chain[1,] = runif(1)
+  for (i in 1:iterations){
+    proposal = proposalfunction(c,chain[i,])
+    
+    probab = dbeta(proposal,6,4)/dbeta(chain[i,1],6,4)*dbeta(chain[i,],c*proposal,c*(1-proposal))/dbeta(proposal,c*chain[i,],c*(1-chain[i,])) # Acceptance Ratio
+    if (runif(1) < probab){
+      chain[i+1,] = proposal
+    }else{
+      chain[i+1,] = chain[i,]
+    }
+  }
+  return(chain)
+}
+
+chain=run_metropolis_MCMC(1, 10000)
+
+par(mfrow=c(1,3))  #1 row, 3 columns
+plot(chain,type = 'l');abline(h = mean(chain_real),col = 'red'); acf(chain); hist(chain,freq = FALSE)  #plot commands
+curve(dbeta(x, 6, 4), add=TRUE)  #adding density function of beta(6,4) to histogram
+ks.test(chain, chain_real)
+```
+
+##c=10
+```{r}
+#Defination of proposal function
+proposalfunction <- function(c, phi_old){   
+  rbeta(1, c*phi_old,c*(1-phi_old))
+}
+#The constant in proposal function
+c<-10                                        
+# MC algorithm
+run_metropolis_MCMC <- function(c, iterations){   
+  chain = array(dim = c(iterations+1,1))
+  chain[1,] = runif(1)
+  for (i in 1:iterations){
+    proposal = proposalfunction(c,chain[i,])
+    
+    probab = dbeta(proposal,6,4)/dbeta(chain[i,1],6,4)*dbeta(chain[i,],c*proposal,c*(1-proposal))/dbeta(proposal,c*chain[i,],c*(1-chain[i,])) # Acceptance Ratio
+    if (runif(1) < probab){
+      chain[i+1,] = proposal
+    }else{
+      chain[i+1,] = chain[i,]
+    }
+  }
+  return(chain)
+}
+
+chain=run_metropolis_MCMC(1, 10000)
+
+par(mfrow=c(1,3))  #1 row, 3 columns
+plot(chain,type = 'l'); abline(h = mean(chain_real),col = 'red');acf(chain); hist(chain,freq = FALSE)  #plot commands
+curve(dbeta(x, 6, 4), add=TRUE)  #adding density function of beta(6,4) to histogram
+ks.test(chain, chain_real)
+```
+
+We conclude that c=10 gives the best estimate. This is based on the tendency of the p-value from the K-S test to be largest when c=10, and the tendency of the histogram to match best with the target density function of Beta(6,4) when c=10.
+
+Sometimes, we found that c=2.5 gave us the best result. Presumably this variation is due to the nature of random variables.
+
