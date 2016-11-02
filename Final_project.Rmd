@@ -1,7 +1,6 @@
 ---
 title: "Final Project"
 author: "Elysa, Kate and Pan"
-date: "2016Äê10ÔÂ28ÈÕ"
 output: html_document
 ---
 
@@ -221,14 +220,14 @@ Sometimes, we found that c=2.5 gives us the best result. I think the reason for 
 
 ## Gibbs sampling
 
-We use inverse transform sampling here.
-1. Generate our CDF
+We use inverse transform sampling here.   
+1. Generate our CDF:
 $$F_{X|Y}=\frac{1-e^{-yx}}{1-e^{-yB}}$$
 $$F_{Y|X}=\frac{1-e^{-xy}}{1-e^{-xB}}$$
-2. Generate two samples from the uniform distribution between 0 and 1. Name them P1 and P2.
-3. For each value P1 and P2 in uniform sample, add new x and y.
-$$x=-\frac{1}{y}log(1-p+pe^{-yB})$$
-$$y=-\frac{1}{x}log(1-p+pe^{-xB})$$
+2. Generate two samples from the uniform distribution between 0 and 1. Name them P1 and P2.    
+3. For each value P1 and P2 in uniform sample, generate new x and y. The rest of the implementation mirrors the implementation shown in class. Thinning the chain via thin=10 was deemed reasonable here as well.
+$$x=-\frac{1}{y}log(1-p~1~+p~1~e^{-yB})$$
+$$y=-\frac{1}{x}log(1-p~2~+p~2~e^{-xB})$$
 
 ## T=500
 
@@ -246,7 +245,7 @@ M = numpy.zeros((T, 3))
 def gibbs(T,thin=10):
     x=1
     y=1
-    #print "Iter  x  y"
+    print "Iter  x  y"
     for i in range(T):
         for j in range(thin):
             p1= random.uniform(0,1)
@@ -259,7 +258,8 @@ def gibbs(T,thin=10):
         #print i,x,y
 
 gibbs(T)
-#print M
+print "Here is an output of 50 rows from the matrix. For brevity we have not printed the other output matrices in this exercise."
+print M[451:500, 0:2]
 print "The expectation of X"
 print numpy.mean(M[:,1])
 #print numpy.mean(M[:,2])
@@ -349,3 +349,5 @@ print numpy.mean(M[:,1])
 
 ```
 ![](C:\Users\Veblen\mystuff\histogram_T=50000.png)
+
+As sample size T increases, the histogram showing X outputs appears less lumpy; it more closely resembles a smooth distribution, as we would expect. Our estimate of the expectation of X appears to increase in accuracy as T increases. As a test we estimated the expectation of Y as well, which we assumed would be the same value (given the symmetry of the CDFs). Both expectations trended toward approximately 1.26 as T increased, which was promising.
