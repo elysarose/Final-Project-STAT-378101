@@ -15,15 +15,15 @@ Beta(6,4) is the distribution we need to sample from. The proposal function give
 
 There are four steps for our algorithm.   
 1. Choose a starting value.   
-2.At iteration t, draw a candidate from the proposal function.   
-3.Compute an acceptance ratio r (probability).   
-4.Accept the proposal value as the value in iteration t with probability min(r,1). If the proposal value is not accepted, then the value in iteration t should remain the same as the value in iteration t-1.   
-5.Repeat steps 2-4. 
+2. At iteration t, draw a candidate from the proposal function.   
+3. Compute an acceptance ratio r (probability).   
+4. Accept the proposal value as the value in iteration t with probability min(r,1). If the proposal value is not accepted, then the value in iteration t should remain the same as the value in iteration t-1.   
+5. Repeat steps 2-4. 
 
 
 ##c=1
 
-###MC algorithm without burn-in
+###MC Algorithm Without Burn-In
 
 Our code for the part with c=1 is shown as the following.
 ```{r}
@@ -64,9 +64,9 @@ curve(dbeta(x, 6, 4), add=TRUE)  #adding density function of beta(6,4) to histog
 
 ```
 
-As can be seen from the chart above, the histogram does not align well with the density function of beta(6,4) (shown as a line).
+As can be seen from the chart above, the histogram does not align well with the density function of Beta(6,4) (shown as a line).
 
-###Plot for real distribution (Beta(6,4))
+###Plot for Real Distribution (Beta(6,4))
 
 ```{r}
 chain_real <- c(10000,1)
@@ -83,7 +83,7 @@ ks.test(chain, chain_real)
 
 The above figure is for the real distribution - namely, the Beta(6,4). The number given is for the Kolmogorov¨CSmirnov test. We can see the two sets of figure do not quite align. The p value we get from the K-S test is quite small, which means that we cannot accept the hypothesis that the two data sets are from the same distribution. 
 
-###MC algorithm with burn-in
+###MC Algorithm with Burn-In
 
 Next we use "burn in" and thinning to improve the performance of the algorithm. We modify the code to the following.
 ```{r}
