@@ -1,6 +1,6 @@
 ---
 title: "Final Project"
-author: "Elysa, Kate and Pan"
+author: "Elysa Strunin, Ekaterina Mikhailova, Shenrui Pan"
 output: html_document
 ---
 
@@ -218,7 +218,7 @@ We conclude that c=10 gives the best estimate. This is based on the tendency of 
 
 Sometimes, we found that c=2.5 gave us the best result. Presumably this variation is due to the nature of random variables.
 
-## Gibbs sampling
+## Gibbs Sampling
 
 We use inverse transform sampling here.   
 1. Generate our CDF:
