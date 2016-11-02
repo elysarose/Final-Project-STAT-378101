@@ -114,15 +114,16 @@ K_means<-function(x,k){
     } 
     
   }} 
+  return(output)
 }
 
 
 
-K_means(wine,3)
+output<-K_means(wine,3)
 #here's the cluster chart
 library(fpc)
-plotcluster(wine, output)
-
+plotcluster(wine, K_means(wine,3))
+output
 #another chart, per the blog post. This indicates the typical values per column per cluster.
 data(wine)
 library(MASS)

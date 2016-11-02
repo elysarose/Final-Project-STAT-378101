@@ -17,7 +17,7 @@ Check to make sure each cluster has at least one point.
 Repeat steps 2-3.
 ```{r}
 data(wine, package="rattle")
-#Remove column 1 from the analysis
+#Preparing data. Remove column 1 from the analysis
 wine <- wine[-1]
 
 #Step 1. Randomly assign 3 epicenters
@@ -54,7 +54,7 @@ K_means<-function(x,k){
   }else{
 #Step 3. Recalculate the epicenters as the means per cluster
     for(i in 1:k) {
-      wines_per_cluster <- wine[all_norms[,k+1]==i, ]
+      wines_per_cluster <- x[all_norms[,k+1]==i, ]
       column_means_per_cluster <- t(colMeans(wines_per_cluster))
       epicenters[i, ] <- column_means_per_cluster
     }
@@ -87,17 +87,82 @@ K_means<-function(x,k){
       all_norms[,k+1] <- all_norms[,k+2]
       all_norms[,k+2] <- NA
     } 
-    
   }} 
+  return(output)
 }
 
-
-
-K_means(wine,3)
+output<-K_means(wine,3)
 ```
 
 We grouped wine data into three clusters. Now we need to visualize our clustering results. 
 ```{r}
+library(fpc)
 plotcluster(wine, output)
 ```
+
+We can see from the graph that data wine seems to be well separated. We can clearly observe each cluster. Here is some very slight overlapping of clusters, although that might not be representative of the actual arrangement in 13-space.
+
+
+Accuracy ratio. How well the algorithm's clusters correspond to the three wine types:
+In order to obtain percentage of wines clustered correctly (if each cluster represents a wine type):
+
+1) Calculate the sum of: (Type 1 wines matched to type 1 cluster) + (Type 2 wines matched to 
+type 2 cluster) + (Type 3 wines matched to type 3 cluster). 
+
+2) Repeat this calculation for the six permutations of the cluster types, since we don't actually know which wine type corresponds to which cluster. (six permutations because in case of 3 clusters we have 3! versions)
+
+3) Across these 6 sums, take the maximum: this is the number of correct matches.
+
+4) Calculate an accuracy ratio: number of correct matches / total observations = 
+```{r}
+#Recall original data again
+data(wine, package="rattle")
+wine$Output <- output
+correct_matches_fxn<-function(x) {
+correct_matches <- max(c(length(which(x[,1]==1 & x[,15]==1)) +
+length(which(x[,1]==2 & x[,15]==2)) +
+length(which(x[,1]==3 & x[,15]==3)),
+
+length(which(x[,1]==1 & x[,15]==1)) +
+length(which(x[,1]==2 & x[,15]==3)) +
+length(which(x[,1]==3 & x[,15]==2)),
+                 
+length(which(x[,1]==1 & x[,15]==2)) +
+length(which(x[,1]==2 & x[,15]==1)) +
+length(which(x[,1]==3 & x[,15]==3)),
+                  
+length(which(x[,1]==1 & x[,15]==2)) +
+length(which(x[,1]==2 & x[,15]==3)) +
+length(which(x[,1]==3 & x[,15]==1)),
+                  
+length(which(x[,1]==1 & x[,15]==3)) +
+length(which(x[,1]==2 & x[,15]==1)) +
+length(which(x[,1]==3 & x[,15]==2)),
+                  
+length(which(x[,1]==1 & x[,15]==3)) +
+length(which(x[,1]==2 & x[,15]==2)) +
+length(which(x[,1]==3 & x[,15]==1))
+))
+return(correct_matches)
+}
+correct_matches<-correct_matches_fxn(wine)
+accuracy_ratio <- correct_matches/178
+accuracy_ratio
+```
+70.2% the accuracy ratio id a really good result. 
+
+Now we will use scaled data in order to compare the efficiency and accuracy of the algorithm K means using it on scaled and non-scaled data. 
+```{r}
+data(wine, package="rattle")
+wine_scale <- scale(wine[-1])
+output<-K_means(wine_scale,3)
+plotcluster(wine_scale, output)
+```
+We can see from the graph that data wine seems to be well separated. We also can clearly observe each cluster as on the non-scaled data. The main difference is that we do not observe any overlapping here, boundaries are really clear now. 
+
+Let us to compute the accuracy ratio for scaled data:
+
+
+
+
 
