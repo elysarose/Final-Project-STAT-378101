@@ -169,5 +169,78 @@ accuracy_ratio
 The accuracy ratio is about 96% now, which is much better than the unscaled data. This result corroborates the graph; visually the scaled clusters are cleaner than the unscaled clusters. Scaling the data has reduced the in-cluster variation that was caused more by magnitude than anything else.
 
 
+Now we look at the Iris data. 
+```{r}
+data(iris)
+iris<-iris[-5]
+output<-K_means(iris,3)
+```
+We grouped Iris data into three clusters. Now we need to visualize our clustering results. 
+```{r}
+library(fpc)
+plotcluster(iris, output, main="Clusters: Unscaled Iris Data")
+```
 
+We can see from the graph that data Irin separated badly. Our clustering function defined only 2 clusters on unscaled data. 
+
+
+Accuracy ratio. 
+```{r}
+data(iris)
+iris[,5]<-as.numeric(iris[,5])
+iris$Output <- output
+correct_matches_fxn<-function(x) {
+correct_matches <- max(c(
+length(which(x[,5]==1 & x[,6]==1)) +
+length(which(x[,5]==2 & x[,6]==2)) +
+length(which(x[,5]==3 & x[,6]==3)),
+
+length(which(x[,5]==1 & x[,6]==1)) +
+length(which(x[,5]==2 & x[,6]==3)) +
+length(which(x[,5]==3 & x[,6]==2)),
+                 
+length(which(x[,5]==1 & x[,6]==2)) +
+length(which(x[,5]==2 & x[,6]==1)) +
+length(which(x[,5]==3 & x[,6]==3)),
+                  
+length(which(x[,5]==1 & x[,6]==2)) +
+length(which(x[,5]==2 & x[,6]==3)) +
+length(which(x[,5]==3 & x[,6]==1)),
+                  
+length(which(x[,5]==1 & x[,6]==3)) +
+length(which(x[,5]==2 & x[,6]==1)) +
+length(which(x[,5]==3 & x[,6]==2)),
+                  
+length(which(x[,5]==1 & x[,6]==3)) +
+length(which(x[,5]==2 & x[,6]==2)) +
+length(which(x[,5]==3 & x[,6]==1))
+))
+return(correct_matches)
+}
+correct_matches<-correct_matches_fxn(iris)
+accuracy_ratio <- correct_matches/nrow(iris)
+accuracy_ratio
+```
+66.6% the accuracy ratio. Although it gives us a good result, the result from the graph shows us that clustering going badly. 
+
+Now we will use scaled data in order to compare the efficiency and accuracy of the algorithm K means using it on scaled and unscaled data. 
+```{r}
+data(iris)
+iris_scale <- scale(iris[-5])
+output<-K_means(iris_scale,3)
+plotcluster(iris_scale, output, main="Clusters: Scaled Iris Data")
+```
+
+We can see from the graph that scaled data Irin seems to be well separated in comparison with non-scaled data.We can clearly ovserve three clusters.  
+
+Let us to compute the accuracy ratio for scaled data:
+```{r}
+data(iris)
+iris[,5]<-as.numeric(iris[,5])
+iris$Output <- output
+correct_matches<-correct_matches_fxn(iris)
+accuracy_ratio <- correct_matches/nrow(iris)
+accuracy_ratio
+```
+The accuracy ratio is about 85.3% now, which is much better. This result supports graph, visually the scaled clusters are cleaner than the unscaled data. 
 

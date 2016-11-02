@@ -74,7 +74,7 @@ K_means<-function(x,k){
     #calculate the means per column using the original matrix
     #populate the epicenters matrix
     for(i in 1:k) {
-      wines_per_cluster <- wine[all_norms[,k+1]==i, ]
+      wines_per_cluster <- x[all_norms[,k+1]==i, ]
       #take the transpose here to orient it correctly:
       column_means_per_cluster <- t(colMeans(wines_per_cluster))
       epicenters[i, ] <- column_means_per_cluster
@@ -119,7 +119,7 @@ K_means<-function(x,k){
 
 
 
-output<-K_means(wine,3)
+output<-K_means(iris,3)
 #here's the cluster chart
 library(fpc)
 plotcluster(wine, K_means(wine,3))
