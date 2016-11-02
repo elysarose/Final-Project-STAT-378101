@@ -161,7 +161,14 @@ plotcluster(wine_scale, output)
 We can see from the graph that data wine seems to be well separated. We also can clearly observe each cluster as on the non-scaled data. The main difference is that we do not observe any overlapping here, boundaries are really clear now. 
 
 Let us to compute the accuracy ratio for scaled data:
-
+```{r}
+data(wine, package="rattle")
+wine$Output <- output
+correct_matches<-correct_matches_fxn(wine)
+accuracy_ratio <- correct_matches/178
+accuracy_ratio
+```
+The accuracy ratio is about 96% now, which is uch better. This result supports graph, visually the scaled clusters are cleaner than the unscaled data. 
 
 
 
