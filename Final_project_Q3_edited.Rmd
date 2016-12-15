@@ -1,0 +1,216 @@
+---
+title: "K Means Final Project"
+author: "Elysa Strunin, Ekaterina Mikhailova, Shenrui Pan"
+output: html_document
+---
+We developed a k-means algorithm which includes the following steps:
+
+1. Randomly assign center locations for each of k clusters.
+
+2. Assign each data point to the cluster whose center is closest to that point.
+
+3. Recalculate each cluster center as the mean location of all the points assigned to it. Verify that each cluster has at least one point.    
+
+Repeat steps 2-3 until there is no change in cluster assignments from one iteration to the next.
+```{r}
+data(wine, package="rattle")
+#Preparing data. Remove column 1 from the analysis
+wine <- wine[-1]
+
+#Step 1. Randomly assign 3 epicenters
+K_means<-function(x,k){ 
+  epicenters <- matrix(0, nrow=k, ncol=ncol(x))
+  #Sample from each column to obtain an epicenter coordinate
+  set.seed(123)
+  for(i in 1:k) {
+    for(j in 1:ncol(x)) {
+      col_sample <- sample(x[,j], 1)
+      epicenters[i,j] <- col_sample
+    }
+  }
+  
+#Step 2. Calculate euclidean distances, take the min of each row and assign that column as the cluster; put it in fourth column.
+  all_norms <- matrix(0, nrow=nrow(x), ncol=k+2)
+  for(i in 1:k) {
+    for(j in 1:nrow(x)) {
+      e_dist <- dist(rbind(x[j,], epicenters[i,]), method = "euclidean")
+      all_norms[j, i] <- e_dist
+    }
+  }
+  for(i in 1:nrow(x)) {
+    min_dist_index <- which.min(as.vector(all_norms[i, c(1:k)]))
+    all_norms[i,k+1] <- min_dist_index
+  }  
+#Taking count of iterations. If clusters on iteration t-1 and t are equal then break and print the output.
+  count <- 0
+  repeat { count <- count + 1
+  if  (identical(all_norms[,k+1], all_norms[,k+2])==TRUE) 
+  {output <- all_norms[,k+1]
+  print(output);
+  break
+  }else{
+#Step 3. Recalculate the epicenters as the means per cluster
+    for(i in 1:k) {
+      wines_per_cluster <- x[all_norms[,k+1]==i, ]
+      column_means_per_cluster <- t(colMeans(wines_per_cluster))
+      epicenters[i, ] <- column_means_per_cluster
+    }
+#Repeating Step 2 and 3: calculating euclidean distances
+    for(i in 1:k) {
+      for(j in 1:nrow(x)) {
+        e_dist <- dist(rbind(x[j,], epicenters[i,]), method = "euclidean")
+        all_norms[j, i] <- e_dist
+      }
+    }
+
+#Take the minimum of each row; assign that column as the cluster on itertaion t; put it in k+2 column
+    for(i in 1:nrow(x)) {
+      min_dist_index <- which.min(as.vector(all_norms[i, c(1:k)]))
+      all_norms[i,k+2] <- min_dist_index
+    }  
+    
+#Checking that each cluster has at least one point,if not - break
+    for (i in 1:k){
+    if ((length(which(all_norms[,k+2]==i)) > 0) == FALSE ) 
+    {
+#If one of the clusters has less than one point - print the t-1 cluster assignments, which should have at least one point per cluster
+      output <- all_norms[,k+1]
+      print(output); break
+    } 
+    }
+#If clusters on iteration t+1 (column k+1) and t (column k+2) are not equal, move the most recent clusters over and loop again
+    if ((identical(all_norms[,k+1], all_norms[,k+2]))==FALSE) 
+    {
+      all_norms[,k+1] <- all_norms[,k+2]
+      all_norms[,k+2] <- NA
+    } 
+  }} 
+  return(output)
+}
+
+output<-K_means(wine,3)
+```
+
+We grouped wine data into three clusters. Now we need to visualize our clustering results. 
+```{r}
+library(fpc)
+plotcluster(wine, output, main="Clusters: Unscaled Wine Data")
+```
+
+We can see from the plot that the wine data seems to be well separated. We can clearly observe each cluster, although there is some very slight overlapping of clusters.
+
+
+Our calculation of an accuracy ratio signals how well the algorithm's clusters correspond to the three wine types. Here we obtain the percentage of wines clustered correctly (if each cluster represents a wine type):
+
+1) Calculate the sum of: (Type 1 wines matched to type 1 cluster) + (Type 2 wines matched to type 2 cluster) + (Type 3 wines matched to type 3 cluster). 
+
+2) Repeat this calculation for the 6 permutations of the cluster types, since we don't actually know which wine type corresponds to which cluster. (Six permutations because in the case of 3 clusters we have 3! versions.)
+
+3) Across these 6 sums, take the maximum: this is the number of correct matches.
+
+4) Calculate an accuracy ratio: number of correct matches / total observations = 
+```{r}
+#Recall original data again
+data(wine, package="rattle")
+wine$Output <- output
+
+#Define a function to calculate number of correct matches:
+#cluster0 is column number of original cluster assignment -
+#cluster1 is column number of updated cluster assignment -
+correct_matches_fxn<-function(x, k, cluster0, cluster1) {
+    #Construct a dataframe to store all possible permutations (k! permutations):
+    newmat <- replicate(k, 1:k)
+    all_combos <- expand.grid(split(newmat, rep(1:k, each = k)))
+    permutations <- all_combos[apply(all_combos, 1, function(a) {length(unique(a)) == k}),]
+    #The "permutations" dataframe lists k! permutations as rows;
+    #Select a row from the dataframe by cycling through it with a for loop,
+    #and calculate the number of matches between that row and given 1:k cluster               #assignment:
+    total_length <- numeric(factorial(k))
+    #Cycle through the cluster assignments indexed by the k! permutation matrix rows:
+    for (j in 1:factorial(k)) {
+        len0 <-  0
+        #Count the matches between these assignments and a given 1:k cluster assignment,
+        #by cycling through 1:k and maintaining a sum of matches per row:
+        for (i in 1:k) {
+            len1 <- length(which(x[,cluster0]==i & x[,cluster1]==permutations[j,i])) 
+            len0 <- len0 + len1
+        }
+        #Sum of matches per row/permutation:
+        total_length[j] <- len0
+    }
+    #Take the maximum over all permutations:
+    correct_matches <- max(total_length)
+    #Return the max as a percentage of number of observations
+    return(correct_matches/nrow(x))
+}
+
+correct_matches_fxn(wine, k=3, cluster0 = 1, cluster1 = 15)
+
+```
+At 70.2%, the accuracy ratio is a very good result. 
+
+Now we will use scaled data in order to compare the efficiency and accuracy of the K means algorithm on scaled versus unscaled data. scale() is a function that centers and/or scales the columns of a numeric matrix. For example, large values of the unscaled data, such as the Magnesium and Proline values, will be scaled to a magnitude more comparable to the other data points.
+ 
+```{r}
+data(wine, package="rattle")
+wine_scale <- scale(wine[-1])
+output<-K_means(wine_scale,3)
+plotcluster(wine_scale, output, main="Clusters: Scaled Wine Data")
+```
+         
+We can see from the graph that the scaled wine clusters are very well-separated. We can clearly observe each cluster. The main difference from the unscaled data is that we do not observe any overlapping here; boundaries are very clear now. 
+
+Let us compute the accuracy ratio for scaled data:
+```{r}
+data(wine, package="rattle")
+wine$Output <- output
+correct_matches_fxn(wine, k=3, cluster0 = 1, cluster1 = 15)
+```
+The accuracy ratio is about 97% now, which is much better than the unscaled data. This result corroborates the graph; visually the scaled clusters are cleaner than the unscaled clusters. Scaling the data has reduced the in-cluster variation that was caused more by magnitude than anything else.
+
+
+Now we look at the iris data. 
+```{r}
+data(iris)
+iris<-iris[-5]
+output<-K_means(iris,3)
+```
+We grouped iris data into three clusters. Now we need to visualize our clustering results. 
+```{r}
+library(fpc)
+plotcluster(iris, output, main="Clusters: Unscaled Iris Data")
+```
+
+We can see from the graph that iris data did not separate as well as the scaled wine data. Furthermore, the separation into 3 clusters is not reliable; during some trials the unscaled data separated into only 2 clusters.
+
+
+Accuracy ratio:
+```{r}
+data(iris)
+iris[,5]<-as.numeric(iris[,5])
+iris$Output <- output
+correct_matches_fxn(iris, k=3, cluster0 = 5, cluster1 = 6)
+
+```
+88.7% is the accuracy ratio. Although this is a good result, the tendency of the data to separate into 2 clusters during some trials is worrisome and we would prefer a more stable result. 
+
+Now we will use scaled data in order to compare the efficiency and accuracy of the k-means algorithm by using it on scaled and unscaled data. 
+```{r}
+data(iris)
+iris_scale <- scale(iris[-5])
+output<-K_means(iris_scale,3)
+plotcluster(iris_scale, output, main="Clusters: Scaled Iris Data")
+```
+
+Again we can see that the scaled iris the data did not separate as well as the scaled wine data.    
+
+Let us compute the accuracy ratio for scaled data:
+```{r}
+data(iris)
+iris[,5]<-as.numeric(iris[,5])
+iris$Output <- output
+correct_matches_fxn(iris, k=3, cluster0 = 5, cluster1 = 6)
+
+```
+The accuracy ratio is about 81.3% now, which falls short of the accuracy ratio for the unscaled data. This is a surprising -- and not reliably repeatable -- result. As discussed above, other trials have shown the unscaled data separating into just 2 clusters, followed by the scaled data separating into 3 well-classified clusters. This lack of reliability and repeatability shows that the k-means algorithm is less effective in classifying the iris dataset than the wine dataset. While the algorithm could be used to explore the iris dataset, we would not recommend basing any definitive classifications/decisions on its use.
+
